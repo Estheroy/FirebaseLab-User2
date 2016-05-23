@@ -1,5 +1,6 @@
 package com.android.lab7exercise_user2;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -8,8 +9,22 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
+
+
+    Firebase myFirebaseRef;
+    TextView textView;
+    Button b1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +41,45 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        Firebase.setAndroidContext(this);
+        Intent intent = new Intent(MainActivity.this, MyService.class);
+        startService(intent);
+    }
+
+    protected void onStart(){
+        super.onStart();
+        textView = (TextView)findViewById(R.id.textView);
+        b1 = (Button)findViewById(R.id.button);
+
+        myFirebaseRef = new Firebase("https://xuouyang-110.firebaseio.com/first");
+        myFirebaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                String data = dataSnapshot.getValue(String.class);
+                textView.setText(data);
+                Toast.makeText(getBaseContext(), data, Toast.LENGTH_LONG).show();
+            }
+
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+        b1.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                myFirebaseRef = new Firebase("https://xuouyang-110.firebaseio.com/second");
+                EditText editText = (EditText)findViewById(R.id.editText);
+                String edit = editText.getText().toString();
+                myFirebaseRef.setValue(edit);
+            }
+
+        });
+
     }
 
     @Override
